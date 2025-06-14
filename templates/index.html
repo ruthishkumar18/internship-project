@@ -64,10 +64,16 @@
       margin: 10px 0;
     }
 
-    .bot-msg pre {
+    pre {
       background: #f4f4f4;
       padding: 10px;
+      border-radius: 4px;
       overflow-x: auto;
+    }
+
+    code {
+      font-family: monospace;
+      white-space: pre-wrap;
     }
 
     .typing {
@@ -96,14 +102,6 @@
       if (e.key === "Enter") sendMessage();
     });
 
-    function cleanBotReply(reply) {
-      return reply
-        .replace(/\*\*/g, '') // Remove **
-        .replace(/```/g, '') // Remove ```
-        .replace(/<br>/g, '\n') // Handle line breaks
-        .replace(/\n/g, '<br>'); // Add HTML line breaks
-    }
-
     function sendMessage() {
       const msg = userinput.value.trim();
       if (!msg) return;
@@ -122,14 +120,7 @@
       .then(res => res.json())
       .then(data => {
         document.getElementById("typing").remove();
-
-        const cleaned = cleanBotReply(data.reply);
-
-        // Replace <pre><code> with nice HTML code blocks
-        const formatted = cleaned.replace(/<pre><code>/g, '<pre><code class="pretty">')
-                                 .replace(/<\/code><\/pre>/g, '</code></pre>');
-
-        chatbox.innerHTML += `<div class="bot-msg"><b>Bot:</b><br>${formatted}</div>`;
+        chatbox.innerHTML += `<div class="bot-msg"><b>Bot:</b><br>${data.reply}</div>`;
         chatbox.scrollTop = chatbox.scrollHeight;
       });
     }
