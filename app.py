@@ -4,6 +4,7 @@ import os
 
 app = Flask(__name__)
 
+# Securely get API key from environment variable
 API_KEY = os.getenv("API_KEY")
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -12,17 +13,18 @@ def query_openrouter(user_message):
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
+
     payload = {
         "model": "meta-llama/llama-3-70b-instruct",
         "messages": [
             {
                 "role": "system",
                 "content": (
-                    "You are an advanced AI assistant. Your replies must:\n"
-                    "- Be detailed, clear, and educational\n"
-                    "- Include headings, subheadings, and bullet points where useful\n"
-                    "- Provide code examples in ``` blocks if relevant\n"
-                    "- Write like an expert tutor for students and professionals"
+                    "You are an expert AI tutor. Provide detailed, clear, educational responses.\n"
+                    "- Use <h3> and bullet points for structure.\n"
+                    "- Present code cleanly in <pre><code> blocks with correct indentation.\n"
+                    "- Avoid markdown (no **, no ```).\n"
+                    "- Ensure code examples are readable."
                 )
             },
             {
@@ -36,6 +38,7 @@ def query_openrouter(user_message):
     }
 
     response = requests.post(API_URL, headers=headers, json=payload)
+
     if response.status_code == 200:
         data = response.json()
         return data["choices"][0]["message"]["content"].strip()
@@ -56,5 +59,4 @@ def get_reply():
     return jsonify({"reply": bot_reply})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
