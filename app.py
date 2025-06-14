@@ -4,8 +4,8 @@ import os
 
 app = Flask(__name__)
 
-# Replace this with your OpenRouter API key
-API_KEY = "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"
+API_KEY = os.getenv("API_KEY")  # Securely fetch key
+
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 def query_openrouter(user_message):
@@ -15,16 +15,16 @@ def query_openrouter(user_message):
     }
 
     payload = {
-        "model": "meta-llama/llama-3-70b-instruct",  # Detailed model
+        "model": "meta-llama/llama-3-70b-instruct",
         "messages": [
             {
                 "role": "system",
                 "content": (
-                    "You are an expert AI tutor. Provide detailed, clear, educational responses.\n"
-                    "- Use headings (like h3) and bullet points.\n"
-                    "- Present code examples cleanly in <pre><code> blocks.\n"
-                    "- Avoid ** and ``` markdown syntax.\n"
-                    "- Format outputs and explanations clearly."
+                    "You are an advanced AI assistant. Your replies must:\n"
+                    "- Be detailed, clear, and educational\n"
+                    "- Include headings, subheadings, and bullet points where useful\n"
+                    "- Provide code examples in ``` blocks if relevant\n"
+                    "- Write like an expert tutor for students and professionals"
                 )
             },
             {
@@ -32,7 +32,7 @@ def query_openrouter(user_message):
                 "content": user_message
             }
         ],
-        "max_tokens": 28000,
+        "max_tokens": 6000,
         "temperature": 0.6,
         "top_p": 1
     }
