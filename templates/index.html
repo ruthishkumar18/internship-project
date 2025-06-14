@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Chatbot</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+    }
+
+    .header {
+      background: #0078d7;
+      color: white;
+      padding: 20px;
+      font-size: 1.5em;
+      text-align: center;
+    }
+
+    #chatbox {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .input-container {
+      display: flex;
+      padding: 10px;
+      background: #f7f7f7;
+    }
+
+    #userinput {
+      flex: 1;
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    #send {
+      background: #0078d7;
+      color: white;
+      border: none;
+      margin-left: 10px;
+      padding: 0 20px;
+      font-size: 1em;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .user-msg, .bot-msg {
+      margin: 10px 0;
+    }
+
+    .bot-msg pre {
+      background: #f4f4f4;
+      padding: 10px;
+      overflow-x: auto;
+    }
+
+    .typing {
+      font-style: italic;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="header">AI Chatbot (LLaMA 3 70B)</div>
+    <div id="chatbox"></div>
+    <div class="input-container">
+      <input type="text" id="userinput" placeholder="Ask me anything...">
+      <button id="send">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const userinput = document.getElementById("userinput");
+    const sendBtn = document.getElementById("send");
+
+    sendBtn.onclick = sendMessage;
+    userinput.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    function cleanBotReply(reply) {
+      return reply
+        .replace(/\*\*/g, '') // Remove **
+        .replace(/```/g, '') // Remove ```
+        .replace(/<br>/g, '\n') // Handle line breaks
+        .replace(/\n/g, '<br>'); // Add HTML line breaks
+    }
+
+    function sendMessage() {
+      const msg = userinput.value.trim();
+      if (!msg) return;
+
+      chatbox.innerHTML += `<div class="user-msg"><b>You:</b> ${msg}</div>`;
+      chatbox.innerHTML += `<div class="typing" id="typing">Bot is typing...</div>`;
+      chatbox.scrollTop = chatbox.scrollHeight;
+      userinput.value = "";
+      userinput.focus();
+
+      fetch("/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ msg: msg })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("typing").remove();
+
+        const cleaned = cleanBotReply(data.reply);
+
+        // Replace <pre><code> with nice HTML code blocks
+        const formatted = cleaned.replace(/<pre><code>/g, '<pre><code class="pretty">')
+                                 .replace(/<\/code><\/pre>/g, '</code></pre>');
+
+        chatbox.innerHTML += `<div class="bot-msg"><b>Bot:</b><br>${formatted}</div>`;
+        chatbox.scrollTop = chatbox.scrollHeight;
+      });
+    }
+
+    window.onload = () => userinput.focus();
+  </script>
+</body>
+</html>
