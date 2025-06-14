@@ -4,7 +4,6 @@ import os
 
 app = Flask(__name__)
 
-# Securely get API key from environment variable
 API_KEY = os.getenv("API_KEY")
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -20,11 +19,12 @@ def query_openrouter(user_message):
             {
                 "role": "system",
                 "content": (
-                    "You are an expert AI tutor. Provide detailed, clear, educational responses.\n"
-                    "- Use <h3> and bullet points for structure.\n"
-                    "- Present code cleanly in <pre><code> blocks with correct indentation.\n"
-                    "- Avoid markdown (no **, no ```).\n"
-                    "- Ensure code examples are readable."
+                    "You are an expert AI tutor. Respond clearly and neatly.\n"
+                    "- Use <h3> for main headings, <h4> for subheadings.\n"
+                    "- Use <ul><li> for bullet points.\n"
+                    "- Use <pre><code> for code blocks (with correct indentation).\n"
+                    "- Do NOT use ** or markdown code fences.\n"
+                    "- Format so it looks like ChatGPT replies (structured and clean)."
                 )
             },
             {
@@ -57,7 +57,6 @@ def get_reply():
     
     bot_reply = query_openrouter(user_msg)
     return jsonify({"reply": bot_reply})
-    
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
